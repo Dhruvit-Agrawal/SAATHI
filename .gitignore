@@ -1,0 +1,22 @@
+# Python virtual environment
+.venv/
+myenv/
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# Large data files
+datasets/
+
+# MLflow tracking data
+mlruns/
+mlartifacts/
+mlflow.db
+
+# IDE and OS-specific files
+.idea/
+.DS_Store
+
+# Saved models
+models/

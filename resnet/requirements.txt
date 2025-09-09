@@ -1,0 +1,6 @@
+torch
+torchvision
+numpy<2
+PyYAML
+mlflow
+Pillow

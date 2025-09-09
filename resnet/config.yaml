@@ -1,0 +1,56 @@
+# -------------------
+# 1. MLFLOW EXPERIMENT DETAILS
+# -------------------
+# The name of the experiment in the MLflow UI
+experiment_name: "Cotton Disease Classification"
+
+# A unique name for this specific run. Change this for each new experiment.
+run_name: "ResNet18_Baseline_10_Epochs"
+
+# A short description of the run's purpose, which will appear in the MLflow UI.
+description: "Baseline training run for ResNet18 on the original dataset with 10 epochs and a 0.001 learning rate."
+
+# Tags are key-value pairs for organizing and filtering runs.
+tags:
+  model_type: "Image Classification"
+  dataset_version: "v1.0"
+  stage: "development"
+
+# -------------------
+# 2. MLFLOW CLIENT CONFIG
+# -------------------
+# Enable or disable MLflow logging globally
+use_mlflow: True
+
+# URI for the MLflow tracking server backend (local file-based database)
+tracking_uri: "sqlite:///mlflow.db"
+
+# -------------------
+# 3. PATHS & DIRECTORIES
+# -------------------
+# These paths are for local file management and are not logged as MLflow parameters.
+paths:
+  # Directory where the raw image data is stored (in subfolders by class)
+  dataset_path: "datasets/cotton_dataset"
+  # Directory to save trained models and outputs
+  output_dir: "resnet/model/"
+  local_model_save_path: "resnet/model/best_cotton_model.pth"
+  # Path for the optimized (quantized) model for deployment
+  quantized_model_save_path: "resnet/model/resnet18_quantized.pth"
+  # Path to save the class index mapping
+  class_map_path: "resnet/model/class_to_idx.json"
+
+# -------------------
+# 4. DATASET & MODEL PARAMETERS
+# -------------------
+# These nested sections will be logged directly to MLflow.
+dataset:
+  # The path to the dataset. It will be logged as an artifact.
+  image_size: 224
+
+model:
+  name: "resnet18"
+  batch_size: 8
+  epochs: 2
+  learning_rate: 0.001
+  num_workers: 0 # Number of CPU workers for loading data
