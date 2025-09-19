@@ -19,4 +19,4 @@ mlflow.db
 .DS_Store
 
 # Saved models
-models/
+resnet/model
