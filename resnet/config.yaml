@@ -5,10 +5,10 @@
 experiment_name: "Cotton Disease Classification"
 
 # A unique name for this specific run. Change this for each new experiment.
-run_name: "ResNet18_Baseline_10_Epochs"
+run_name: "ResNet18_Baseline_50_Epochs"
 
 # A short description of the run's purpose, which will appear in the MLflow UI.
-description: "Baseline training run for ResNet18 on the original dataset with 10 epochs and a 0.001 learning rate."
+description: "Baseline training run for ResNet18 on the original dataset with 50 epochs and a 0.001 learning rate."
 
 # Tags are key-value pairs for organizing and filtering runs.
 tags:
@@ -51,6 +51,6 @@ dataset:
 model:
   name: "resnet18"
   batch_size: 8
-  epochs: 5
+  epochs: 50
   learning_rate: 0.001
   num_workers: 0 # Number of CPU workers for loading data

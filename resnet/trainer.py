@@ -18,13 +18,16 @@ import seaborn as sns
 class Trainer:
     """Handles the model training and validation loops with detailed MLflow logging."""
 
-    def __init__(self, model: nn.Module, train_loader: DataLoader, val_loader: DataLoader, config: Dict):
+    def __init__(self, model: nn.Module, train_loader: DataLoader, val_loader: DataLoader, test_loader: DataLoader, config: Dict):
         """Initializes the Trainer."""
         self.config = config
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = model.to(self.device)
+
         self.train_loader = train_loader
         self.val_loader = val_loader
+        self.test_loader = test_loader
+
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.config['model']['learning_rate'])
         self.epochs = self.config['model']['epochs']
@@ -45,15 +48,25 @@ class Trainer:
             running_loss += loss.item() * inputs.size(0)
         return running_loss / len(self.train_loader.dataset)
 
-    def _validate_epoch(self) -> tuple[float, float, dict]:
-        """Runs a single validation epoch and calculates detailed metrics."""
-        self.model.eval()
+    # In your Trainer class
+
+    def _evaluate_epoch(self, data_loader: DataLoader) -> tuple[float, float, dict]:
+        """
+        Runs a single evaluation epoch on a given data loader.
+
+        Args:
+            data_loader (DataLoader): The DataLoader to evaluate (e.g., validation or test).
+
+        Returns:
+            A tuple containing the loss, accuracy, and detailed metrics for the epoch.
+        """
+        self.model.eval()  # Set the model to evaluation mode
         running_loss = 0.0
         all_preds = []
         all_labels = []
 
         with torch.no_grad():
-            for inputs, labels in self.val_loader:
+            for inputs, labels in data_loader:
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
                 outputs = self.model(inputs)
                 loss = self.criterion(outputs, labels)
@@ -61,18 +74,14 @@ class Trainer:
                 _, preds = torch.max(outputs, 1)
                 running_loss += loss.item() * inputs.size(0)
 
-                # Collect predictions and labels for detailed metrics
                 all_preds.extend(preds.cpu().numpy())
                 all_labels.extend(labels.cpu().numpy())
 
-        # Calculate basic metrics
-        val_loss = running_loss / len(self.val_loader.dataset)
-        val_acc = sum(np.array(all_preds) == np.array(all_labels)) / len(all_labels)
-
-        # Calculate detailed metrics
+        epoch_loss = running_loss / len(data_loader.dataset)
+        epoch_acc = sum(np.array(all_preds) == np.array(all_labels)) / len(all_labels)
         detailed_metrics = self._calculate_detailed_metrics(all_labels, all_preds)
 
-        return val_loss, val_acc, detailed_metrics
+        return epoch_loss, epoch_acc, detailed_metrics
 
     def _calculate_detailed_metrics(self, true_labels, pred_labels):
         """Calculate detailed evaluation metrics."""
@@ -157,7 +166,7 @@ class Trainer:
             for epoch in range(self.epochs):
                 start_time = time.time()
                 train_loss = self._train_epoch()
-                val_loss, val_acc, detailed_metrics = self._validate_epoch()
+                val_loss, val_acc, detailed_metrics = self._evaluate_epoch(self.val_loader)
                 end_time = time.time()
                 epoch_duration = end_time - start_time
 
